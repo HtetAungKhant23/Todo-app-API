@@ -10,27 +10,40 @@ export class AuthService {
   constructor(private readonly prisma: PrismaService, private readonly jwt: JwtService) {}
 
   private async getTokens({ id }: { id: string }) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwt.signAsync(
-        { id },
-        {
-          secret: process.env.JWT_SECRET,
-          expiresIn: "1d",
-        },
-      ),
-      this.jwt.signAsync(
-        { id },
-        {
-          secret: process.env.JWT_REFRESH_SECRET,
-          expiresIn: "7d",
-        },
-      ),
-    ]);
+    // const [accessToken, refreshToken] = await Promise.all([
+    //   this.jwt.signAsync(
+    //     { id },
+    //     {
+    //       secret: process.env.JWT_SECRET,
+    //       expiresIn: "1d",
+    //     },
+    //   ),
+    //   this.jwt.signAsync(
+    //     { id },
+    //     {
+    //       secret: process.env.JWT_REFRESH_SECRET,
+    //       expiresIn: "7d",
+    //     },
+    //   ),
+    // ]);
+
+    const accessToken = await this.jwt.signAsync({ id }, { secret: process.env.JWT_SECRET, expiresIn: "1d" });
+    const refreshToken = await this.jwt.signAsync({ id }, { secret: process.env.JWT_REFRESH_SECRET, expiresIn: "7d" });
 
     return {
       accessToken,
       refreshToken,
     };
+  }
+
+  private async updateRefreshToken({ id, token }: { id: string; token: string }) {
+    const hashedRefreshToekn = await hash(token);
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        refresh_token: hashedRefreshToekn,
+      },
+    });
   }
 
   private async notFoundUserHandler() {
@@ -148,8 +161,40 @@ export class AuthService {
     }
 
     const isPasswordMatch = await verify(user.password, data.password);
-    if (isPasswordMatch) {
-      const tokens = await this.getTokens({ id: user.id });
+    if (!isPasswordMatch) {
+      throw new HttpException(
+        {
+          message: "Password not match.",
+          devMessage: "user-found-password-not-match",
+        },
+        401,
+      );
     }
+
+    const tokens = await this.getTokens({ id: user.id });
+    await this.updateRefreshToken({ id: user.id, token: tokens.refreshToken });
+
+    return responser({
+      statusCode: 200,
+      message: "User login success.",
+      body: {
+        ...tokens,
+        name: user.name,
+      },
+    });
+  }
+
+  async validateMe({id}: {id: string}) {
+    const user = await this.prisma.user.findFirst({
+      where: { id },
+    });
+    if (!user) {
+      return this.notFoundUserHandler();
+    }
+    return responser({
+      statusCode: 200,
+      message: "User validated Me",
+      body: user,
+    });
   }
 }
