@@ -1,13 +1,47 @@
 import { Injectable, HttpException } from "@nestjs/common";
-import { UserConfirmDto, UserInvite } from "./dto/create-auth.dto";
+import { UserConfirmDto, UserInvite, UserLoginDto } from "./dto/create-auth.dto";
 import { PrismaService } from "src/prisma.service";
 import { responser } from "src/lib/Responser";
-import { hash } from "argon2";
-
+import { hash, verify } from "argon2";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly jwt: JwtService) {}
+
+  private async getTokens({ id }: { id: string }) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwt.signAsync(
+        { id },
+        {
+          secret: process.env.JWT_SECRET,
+          expiresIn: "1d",
+        },
+      ),
+      this.jwt.signAsync(
+        { id },
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: "7d",
+        },
+      ),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  private async notFoundUserHandler() {
+    throw new HttpException(
+      {
+        message: "User not found",
+        devMessage: "user-not-exist",
+      },
+      404,
+    );
+  }
 
   private async createUserHandler(data: UserInvite) {
     try {
@@ -72,13 +106,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException(
-        {
-          message: "User not found",
-          devMessage: "user-not-exist",
-        },
-        404,
-      );
+      return this.notFoundUserHandler();
     }
 
     if (user.otp === data.code) {
@@ -97,7 +125,6 @@ export class AuthService {
         message: "User invited successfully.",
         body: updatedUser,
       });
-
     } else {
       throw new HttpException(
         {
@@ -107,6 +134,22 @@ export class AuthService {
         404,
       );
     }
-    
+  }
+
+  async loginUser(data: UserLoginDto) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        phone: data.phone,
+      },
+    });
+
+    if (!user) {
+      return this.notFoundUserHandler();
+    }
+
+    const isPasswordMatch = await verify(user.password, data.password);
+    if (isPasswordMatch) {
+      const tokens = await this.getTokens({ id: user.id });
+    }
   }
 }
