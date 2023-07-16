@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { UserInvite } from "./dto/create-auth.dto";
+import { UserConfirmDto, UserInvite } from "./dto/create-auth.dto";
 
 @Controller("auth/user")
 export default class AuthController {
@@ -8,8 +8,12 @@ export default class AuthController {
 
   @Post("register")
   async userRegister(@Body() registerData: UserInvite) {
-    const newUser = await this.authService.invite(registerData);
-    return newUser;
+    return this.authService.invite(registerData);
   }
-  
+
+  @Post('confirm')
+  async userConfirm(@Body() confirmData: UserConfirmDto) {
+    return this.authService.confirmUser(confirmData);
+  }
+
 }
