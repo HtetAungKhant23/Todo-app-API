@@ -11,19 +11,28 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid()) @db.VarChar(255)
-  name String 
-  phone String @unique @db.VarChar(255)
-  created_at DateTime @default(now())
-  todo Todo[]
+  id            String    @id @default(uuid()) @db.VarChar(255)
+  name          String
+  phone         String    @unique @db.VarChar(255)
+  password      String?
+  otp           String?   @db.VarChar(6)
+  otpUsed       otpStatus @default(UNUSED)
+  refresh_token String?
+  created_at    DateTime  @default(now())
+  todo          Todo[]
 }
 
 model Todo {
-  id String @id @default(uuid()) @db.VarChar(255)
-  title String
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  title       String
   description String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  user_id String @unique
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user_id     String   @unique
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum otpStatus {
+  USED
+  UNUSED
 }

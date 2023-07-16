@@ -1,6 +1,7 @@
 import { Injectable, HttpException } from "@nestjs/common";
 import { UserInvite } from "./dto/create-auth.dto";
 import { PrismaService } from "src/prisma.service";
+import { responser } from "src/lib/Responser";
 
 @Injectable()
 export class AuthService {
@@ -23,6 +24,11 @@ export class AuthService {
       );
     }
 
-    return await this.prisma.user.create({ data });
+    // const newUser = await this.prisma.user.create({ data });
+    // return responser({
+    //   statusCode: 200,
+    //   message: 'User invited successfully',
+    //   body: 
+    // })
   }
 }
