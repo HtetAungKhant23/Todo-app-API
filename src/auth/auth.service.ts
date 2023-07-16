@@ -4,6 +4,7 @@ import { PrismaService } from "src/prisma.service";
 import { responser } from "src/lib/Responser";
 import { hash, verify } from "argon2";
 import { JwtService } from "@nestjs/jwt";
+import { Request } from "express";
 
 @Injectable()
 export class AuthService {
@@ -34,6 +35,11 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  private async extractTokenFromHeader(req: Request) {
+    const [type, token] = req.headers.authorization?.split(" ") ?? [];
+    return type === "Bearer" ? token : undefined;
   }
 
   private async updateRefreshToken({ id, token }: { id: string; token: string }) {
@@ -184,7 +190,7 @@ export class AuthService {
     });
   }
 
-  async validateMe({id}: {id: string}) {
+  async validateMe({ id }: { id: string }) {
     const user = await this.prisma.user.findFirst({
       where: { id },
     });
@@ -196,5 +202,55 @@ export class AuthService {
       message: "User validated Me",
       body: user,
     });
+  }
+
+  async requestRefreshToken(req: Request) {
+    const token = await this.extractTokenFromHeader(req);
+    if (!token) {
+      throw new HttpException(
+        {
+          message: "Refresh token is not valid",
+          devMessage: "no-token-found",
+        },
+        401,
+      );
+    }
+
+    try {
+      const decode = await this.jwt.verifyAsync(token, { secret: process.env.JWT_REFRESH_SECRET });
+      const existingUser = await this.prisma.user.findFirst({ where: { id: decode.id } });
+      if (!existingUser) {
+        return this.notFoundUserHandler();
+      }
+      const isRefreshTokenMatch = await verify(existingUser.refresh_token, token);
+      if (!isRefreshTokenMatch) {
+        throw new HttpException(
+          {
+            message: "Refresh token is not valid",
+            devMessage: "token-found-not-match-with-user",
+          },
+          401,
+        );
+      }
+
+      const tokens = await this.getTokens({ id: existingUser.id });
+
+      await this.updateRefreshToken({ id: existingUser.id, token: tokens.refreshToken });
+
+      return responser({
+        statusCode: 200,
+        message: "token refreshed",
+        body: tokens,
+      });
+
+    } catch (err) {
+      throw new HttpException(
+        {
+          message: "Refresh token is not valid",
+          devMessage: err,
+        },
+        401,
+      );
+    }
   }
 }

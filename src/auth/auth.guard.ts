@@ -30,7 +30,7 @@ export class UserAuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
       console.log(decode.id);
-      request['user'] = decode;
+      request['user'] = decode.id;
       console.log(request['user'], "hay");
     } catch (err) {
       throw new HttpException(
