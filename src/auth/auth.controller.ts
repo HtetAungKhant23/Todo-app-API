@@ -11,7 +11,5 @@ export default class AuthController {
     const newUser = await this.authService.invite(registerData);
     return newUser;
   }
-
-  // @Post('login')
-  // async userLogin(@Body() loginData: )
+  
 }
