@@ -198,4 +198,26 @@ export class TodosService {
       throw err;
     }
   }
+
+  async delete(id: string) {
+    try {
+      const deletedTodo = await this.prisma.todo.delete({
+        where: { id },
+      });
+
+      return responser({
+        statusCode: 200,
+        message: "successfully deleted",
+        body: deletedTodo,
+      });
+    } catch (err) {
+      throw new HttpException(
+        {
+          message: "todo not found and cannot delete",
+          devMessage: "cannot-delete-todo",
+        },
+        404,
+      );
+    }
+  }
 }

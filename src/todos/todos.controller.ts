@@ -27,15 +27,21 @@ export class TodosController {
     return this.todosService.findOne(id);
   }
 
-  @Post('complete/:id')
+  @Post("complete/:id")
   @UseGuards(UserAuthGuard)
-  async completeTodo(@Param('id') id: string): Promise<any> {
+  async completeTodo(@Param("id") id: string): Promise<any> {
     return this.todosService.complete(id);
   }
 
-  @Post('update/:id')
+  @Post("update/:id")
   @UseGuards(UserAuthGuard)
-  async updateTodo(@Param('id') id: string, @Body() updateData: UpdateTodoDto): Promise<any> {
+  async updateTodo(@Param("id") id: string, @Body() updateData: UpdateTodoDto): Promise<any> {
     return this.todosService.update(id, updateData);
+  }
+
+  @Post("delete/:id")
+  @UseGuards(UserAuthGuard)
+  async deleteTodo(@Param("id") id: string): Promise<any> {
+    return this.todosService.delete(id);
   }
 }
