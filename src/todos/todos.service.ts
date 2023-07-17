@@ -1,26 +1,37 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTodoDto } from './dto/create-todo.dto';
-import { UpdateTodoDto } from './dto/update-todo.dto';
+import { HttpException, Injectable } from "@nestjs/common";
+import { CreateTodoDto } from "./dto/create-todo.dto";
+import { PrismaService } from "src/prisma.service";
+import { responser } from "src/lib/Responser";
 
 @Injectable()
 export class TodosService {
-  create(createTodoDto: CreateTodoDto) {
-    return 'This action adds a new todo';
+  constructor(private prisma: PrismaService) {}
+
+  async create(data: CreateTodoDto, id: string) {
+    try {
+      const todo = await this.prisma.todo.create({
+        data: {
+          title: data.title,
+          description: data.description,
+          user_id: id,
+        },
+      });
+
+      return responser({
+        statusCode: 201,
+        message: "todo created successfully",
+        body: todo,
+      });
+    } catch (err) {
+      throw new HttpException(
+        {
+          message: "todo cannot created",
+          devMessage: err,
+        },
+        500,
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all todos`;
-  }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
-  }
-
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
-  }
 }

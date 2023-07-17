@@ -1,34 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { TodosService } from './todos.service';
+import { UserAuthGuard } from 'src/auth/auth.guard';
 import { CreateTodoDto } from './dto/create-todo.dto';
-import { UpdateTodoDto } from './dto/update-todo.dto';
+import { IAuthRequest } from 'src/@types/authRequest';
 
 @Controller('todos')
 export class TodosController {
-  constructor(private readonly todosService: TodosService) {}
+  constructor(private readonly todosService: TodosService) { }
 
-  @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todosService.create(createTodoDto);
+  @Post('create')
+  @UseGuards(UserAuthGuard)
+  async createTodo(@Body() createTodoData: CreateTodoDto, @Request() req: IAuthRequest): Promise<any> {
+    return this.todosService.create(createTodoData, req.user.id);
   }
 
-  @Get()
-  findAll() {
-    return this.todosService.findAll();
-  }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todosService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return this.todosService.update(+id, updateTodoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todosService.remove(+id);
-  }
 }
