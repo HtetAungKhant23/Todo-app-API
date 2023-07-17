@@ -3,6 +3,7 @@ import { TodosService } from "./todos.service";
 import { UserAuthGuard } from "src/auth/auth.guard";
 import { CreateTodoDto } from "./dto/create-todo.dto";
 import { IAuthRequest } from "src/@types/authRequest";
+import { UpdateTodoDto } from "./dto/update-todo.dto";
 
 @Controller("todos")
 export class TodosController {
@@ -32,4 +33,9 @@ export class TodosController {
     return this.todosService.complete(id);
   }
 
+  @Post('update/:id')
+  @UseGuards(UserAuthGuard)
+  async updateTodo(@Param('id') id: string, @Body() updateData: UpdateTodoDto): Promise<any> {
+    return this.todosService.update(id, updateData);
+  }
 }

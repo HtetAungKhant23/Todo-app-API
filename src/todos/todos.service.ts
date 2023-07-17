@@ -2,6 +2,7 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { CreateTodoDto } from "./dto/create-todo.dto";
 import { PrismaService } from "src/prisma.service";
 import { responser } from "src/lib/Responser";
+import { UpdateTodoDto } from "./dto/update-todo.dto";
 
 @Injectable()
 export class TodosService {
@@ -12,6 +13,7 @@ export class TodosService {
       {
         message: "todo not found",
         devMessage: "todo-not-found",
+        statusCode: 404,
       },
       404,
     );
@@ -23,11 +25,23 @@ export class TodosService {
         id,
       },
     });
-    if (todo.complete_status === "DONE") {
+    if (!todo) {
+      const err = new HttpException(
+        {
+          message: "todo not found",
+          devMessage: "todo-not-found",
+          statusCode: 404,
+        },
+        404,
+      );
+      return { undefined, err };
+    }
+    if (todo?.complete_status === "DONE") {
       const err = new HttpException(
         {
           message: "todo is already complete",
           devMessage: "todo-is-already-completed",
+          statusCode: 400,
         },
         400,
       );
@@ -153,15 +167,35 @@ export class TodosService {
         body: updatedTodo,
       });
     } catch (err) {
-      throw new HttpException(
-        {
-          message: "todo not found",
-          devMessage: err,
-        },
-        404,
-      );
+      throw err;
     }
   }
 
- 
+  async update(id: string, updateData: UpdateTodoDto) {
+    try {
+      const { todo, err } = await this.isAlreadyDone(id);
+      if (err && !todo) {
+        throw err;
+      }
+
+      const updatedTodo = await this.prisma.todo.update({
+        data: {
+          title: updateData.title,
+          description: updateData.description,
+        },
+        where: {
+          id,
+          complete_status: "UNDONE",
+        },
+      });
+
+      return responser({
+        statusCode: 200,
+        message: "todo is successfully updated",
+        body: updatedTodo,
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
 }
