@@ -1,5 +1,5 @@
 import { Injectable, HttpException } from "@nestjs/common";
-import { UserConfirmDto, UserInvite, UserLoginDto } from "./dto/create-auth.dto";
+import { UserConfirmDto, UserInvite, UserLoginDto } from "./dto/user-auth.dto";
 import { PrismaService } from "src/prisma.service";
 import { responser } from "src/lib/Responser";
 import { hash, verify } from "argon2";
@@ -242,7 +242,6 @@ export class AuthService {
         message: "token refreshed",
         body: tokens,
       });
-
     } catch (err) {
       throw new HttpException(
         {
