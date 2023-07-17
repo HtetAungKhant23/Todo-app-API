@@ -197,10 +197,13 @@ export class AuthService {
     if (!user) {
       return this.notFoundUserHandler();
     }
+
+    const { refresh_token, password, ...result } = user;
+
     return responser({
       statusCode: 200,
       message: "User validated Me",
-      body: user,
+      body: result,
     });
   }
 
