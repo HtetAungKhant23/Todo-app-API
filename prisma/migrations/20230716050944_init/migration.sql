@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE `user` ADD COLUMN `otp` VARCHAR(6) NULL,
-    ADD COLUMN `otpUsed` ENUM('USED', 'UNUSED') NOT NULL DEFAULT 'UNUSED',
-    ADD COLUMN `password` VARCHAR(191) NULL,
-    ADD COLUMN `refresh_token` VARCHAR(191) NULL;

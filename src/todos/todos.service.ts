@@ -7,15 +7,20 @@ import { responser } from "src/lib/Responser";
 export class TodosService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: CreateTodoDto, id: string) {
+  async create(todoData: CreateTodoDto, id: string) {
     try {
+      console.log("hi hay hr from service");
+      console.log(id);
+
       const todo = await this.prisma.todo.create({
         data: {
-          title: data.title,
-          description: data.description,
+          title: todoData.title,
+          description: todoData.description,
           user_id: id,
         },
       });
+
+      console.log("hi from service");
 
       return responser({
         statusCode: 201,
@@ -47,14 +52,16 @@ export class TodosService {
             message: "there is no todo",
             devMessage: "no-todo-found",
           },
-          404,
+          200,
         );
       }
 
       return responser({
         statusCode: 200,
         message: "todos fatched successfully",
-        body: todos,
+        body: todos.map(todo => {
+          return { id: todo.id, title: todo.title };
+        }),
       });
     } catch (err) {
       throw new HttpException(
@@ -66,6 +73,4 @@ export class TodosService {
       );
     }
   }
-
-  
 }
