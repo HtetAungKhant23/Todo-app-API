@@ -33,5 +33,39 @@ export class TodosService {
     }
   }
 
+  async findAll(id: string) {
+    try {
+      const todos = await this.prisma.todo.findMany({
+        where: {
+          user_id: id,
+        },
+      });
 
+      if (todos.length < 1) {
+        throw new HttpException(
+          {
+            message: "there is no todo",
+            devMessage: "no-todo-found",
+          },
+          404,
+        );
+      }
+
+      return responser({
+        statusCode: 200,
+        message: "todos fatched successfully",
+        body: todos,
+      });
+    } catch (err) {
+      throw new HttpException(
+        {
+          message: "todo not found",
+          devMessage: err,
+        },
+        404,
+      );
+    }
+  }
+
+  
 }

@@ -14,5 +14,11 @@ export class TodosController {
     return this.todosService.create(createTodoData, req.user.id);
   }
 
+  @Get()
+  @UseGuards(UserAuthGuard)
+  async getAllTodo(@Request() req: IAuthRequest): Promise<any> {
+    return this.todosService.findAll(req.user.id);
+  }
+
 
 }
