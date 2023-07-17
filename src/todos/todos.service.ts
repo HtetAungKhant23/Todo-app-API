@@ -73,4 +73,34 @@ export class TodosService {
       );
     }
   }
+
+  async findOne(id: string) {
+    try {
+      const todo = await this.prisma.todo.findFirst({
+        where: { id },
+      });
+      if (!todo) {
+        throw new HttpException(
+          {
+            message: "todo not found",
+            devMessage: "todo-not-found",
+          },
+          404,
+        );
+      }
+      return responser({
+        statusCode: 200,
+        message: "todo fetched successfully",
+        body: todo,
+      });
+    } catch (err) {
+      throw new HttpException(
+        {
+          message: "todo not found",
+          devMessage: err,
+        },
+        404,
+      );
+    }
+  }
 }
