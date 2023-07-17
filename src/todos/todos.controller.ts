@@ -28,7 +28,8 @@ export class TodosController {
 
   @Post('complete/:id')
   @UseGuards(UserAuthGuard)
-  async completeTodo(@Param('id') id: string) {
+  async completeTodo(@Param('id') id: string): Promise<any> {
     return this.todosService.complete(id);
   }
+
 }

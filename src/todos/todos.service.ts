@@ -17,6 +17,26 @@ export class TodosService {
     );
   }
 
+  async isAlreadyDone(id: string) {
+    const todo = await this.prisma.todo.findFirst({
+      where: {
+        id,
+      },
+    });
+    if (todo.complete_status === "DONE") {
+      const err = new HttpException(
+        {
+          message: "todo is already complete",
+          devMessage: "todo-is-already-completed",
+        },
+        400,
+      );
+      return { undefined, err };
+    } else {
+      return { todo, undefined };
+    }
+  }
+
   async create(todoData: CreateTodoDto, id: string) {
     try {
       console.log("hi hay hr from service");
@@ -112,20 +132,11 @@ export class TodosService {
 
   async complete(id: string) {
     try {
-      const todo = await this.prisma.todo.findFirst({
-        where: {
-          id,
-        },
-      });
-      if (todo.complete_status === "DONE") {
-        throw new HttpException(
-          {
-            message: "todo is already completed",
-            devMessage: "todo-is-already-completed",
-          },
-          400,
-        );
+      const { todo, err } = await this.isAlreadyDone(id);
+      if (err && !todo) {
+        throw err;
       }
+
       const updatedTodo = await this.prisma.todo.update({
         data: {
           complete_status: "DONE",
@@ -151,4 +162,6 @@ export class TodosService {
       );
     }
   }
+
+ 
 }
