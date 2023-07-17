@@ -7,6 +7,16 @@ import { responser } from "src/lib/Responser";
 export class TodosService {
   constructor(private prisma: PrismaService) {}
 
+  async notFoundTodo() {
+    throw new HttpException(
+      {
+        message: "todo not found",
+        devMessage: "todo-not-found",
+      },
+      404,
+    );
+  }
+
   async create(todoData: CreateTodoDto, id: string) {
     try {
       console.log("hi hay hr from service");
@@ -79,19 +89,57 @@ export class TodosService {
       const todo = await this.prisma.todo.findFirst({
         where: { id },
       });
+
       if (!todo) {
-        throw new HttpException(
-          {
-            message: "todo not found",
-            devMessage: "todo-not-found",
-          },
-          404,
-        );
+        return this.notFoundTodo();
       }
+
       return responser({
         statusCode: 200,
         message: "todo fetched successfully",
         body: todo,
+      });
+    } catch (err) {
+      throw new HttpException(
+        {
+          message: "todo not found",
+          devMessage: err,
+        },
+        404,
+      );
+    }
+  }
+
+  async complete(id: string) {
+    try {
+      const todo = await this.prisma.todo.findFirst({
+        where: {
+          id,
+        },
+      });
+      if (todo.complete_status === "DONE") {
+        throw new HttpException(
+          {
+            message: "todo is already completed",
+            devMessage: "todo-is-already-completed",
+          },
+          400,
+        );
+      }
+      const updatedTodo = await this.prisma.todo.update({
+        data: {
+          complete_status: "DONE",
+        },
+        where: {
+          id,
+          complete_status: "UNDONE",
+        },
+      });
+
+      return responser({
+        statusCode: 200,
+        message: "todo is completed successfully",
+        body: updatedTodo,
       });
     } catch (err) {
       throw new HttpException(
