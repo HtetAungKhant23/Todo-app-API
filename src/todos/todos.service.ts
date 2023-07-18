@@ -99,7 +99,7 @@ export class TodosService {
       });
 
       if (todos.length < 1) {
-        throw this.notFoundTodoException();
+        throw await this.notFoundTodoException();
       }
 
       return responser({
