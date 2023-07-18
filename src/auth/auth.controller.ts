@@ -4,7 +4,7 @@ import { UserConfirmDto, UserInvite, UserLoginDto, UserReqOtp } from "./dto/user
 import { IAuthRequest } from "src/@types/authRequest";
 import { UserAuthGuard } from "./auth.guard";
 import { Request as expRequest } from "express";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 @Controller("auth/user")
 @ApiTags("Auth")
@@ -29,6 +29,7 @@ export default class AuthController {
     return this.authService.loginUser(loginData);
   }
 
+  @ApiBearerAuth()
   @ApiOperation({ summary: "User Validate Me" })
   @Get("me")
   @UseGuards(UserAuthGuard)
@@ -43,6 +44,7 @@ export default class AuthController {
     return this.authService.requestOtp(reqOtpDto);
   }
 
+  @ApiBearerAuth()
   @ApiOperation({ summary: "User Request Refresh Token" })
   @Get("refresh-token")
   async userRefreshToken(@Request() req: expRequest): Promise<any> {

@@ -104,7 +104,7 @@ export class TodosService {
 
       return responser({
         statusCode: 200,
-        message: "todos fatched successfully",
+        message: "todos fetched successfully",
         body: todos.map(todo => {
           return { id: todo.id, title: todo.title };
         }),
@@ -229,7 +229,7 @@ export class TodosService {
 
       return responser({
         statusCode: 200,
-        message: "successfully deleted",
+        message: "todo is successfully deleted",
         body: deletedTodo,
       });
     } catch (err) {

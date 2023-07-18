@@ -4,10 +4,11 @@ import { UserAuthGuard } from "src/auth/auth.guard";
 import { CreateTodoDto } from "./dto/create-todo.dto";
 import { IAuthRequest } from "src/@types/authRequest";
 import { UpdateTodoDto } from "./dto/update-todo.dto";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 @Controller("todos")
 @ApiTags("Todo")
+@ApiBearerAuth()
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
