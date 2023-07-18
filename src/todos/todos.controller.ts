@@ -31,6 +31,13 @@ export class TodosController {
   async findCompletedTodo(@Request() req: IAuthRequest): Promise<any> {
     return this.todosService.findCompleted(req.user.id);
   }
+
+  @ApiOperation({ summary: "Get In Progress Todo" })
+  @UseGuards(UserAuthGuard)
+  @Get('uncompleted')
+  async findUncompletedTodo(@Request() req: IAuthRequest): Promise<any> {
+    return this.todosService.findUncompleted(req.user.id);
+  }
     
     
   @ApiOperation({ summary: "Get Todo by ID" })

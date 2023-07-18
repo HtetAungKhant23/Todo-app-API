@@ -130,6 +130,22 @@ export class TodosService {
     }
   }
 
+  async findUncompleted(id: string) {
+    try {
+      const { todos, err } = await this.completedOrUncompletedTodos(id, "UNDONE");
+      if (err && !todos) {
+        throw err;
+      }
+      return responser({
+        statusCode: 200,
+        message: "Uncompleted Todo is successfully fetched",
+        body: todos,
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async findOne(id: string) {
     try {
       const todo = await this.prisma.todo.findFirst({
