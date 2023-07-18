@@ -1,5 +1,5 @@
 import { Injectable, HttpException } from "@nestjs/common";
-import { UserConfirmDto, UserInvite, UserLoginDto } from "./dto/user-auth.dto";
+import { UserConfirmDto, UserInvite, UserLoginDto, UserReqOtp } from "./dto/user-auth.dto";
 import { PrismaService } from "src/prisma.service";
 import { responser } from "src/lib/Responser";
 import { hash, verify } from "argon2";
@@ -53,10 +53,11 @@ export class AuthService {
   }
 
   private async notFoundUserHandler() {
-    throw new HttpException(
+    return new HttpException(
       {
         message: "User not found",
         devMessage: "user-not-exist",
+        statusCode: 404,
       },
       404,
     );
@@ -253,6 +254,41 @@ export class AuthService {
         },
         401,
       );
+    }
+  }
+
+  async requestOtp(data: UserReqOtp) {
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          phone: data.phone.toString(),
+        },
+      });
+
+      if (!user) {
+        throw await this.notFoundUserHandler();
+      }
+
+      const code: number = Math.floor(100000 + Math.random() * 900000);
+      await this.prisma.user.update({
+        data: {
+          otp: code.toString(),
+          otpUsed: "UNUSED",
+        },
+        where: {
+          id: user.id,
+        },
+      });
+
+      return responser({
+        statusCode: 200,
+        message: "Otp send successfully",
+        body: {
+          otp: code.toString(),
+        },
+      });
+    } catch (err) {
+      throw err;
     }
   }
 }

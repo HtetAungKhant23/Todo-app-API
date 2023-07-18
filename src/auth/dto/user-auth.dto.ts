@@ -34,3 +34,8 @@ export class UserConfirmDto {
   password: string;
 }
 
+export class UserReqOtp {
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+}

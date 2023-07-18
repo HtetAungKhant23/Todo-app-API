@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Request, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { UserConfirmDto, UserInvite, UserLoginDto } from "./dto/user-auth.dto";
+import { UserConfirmDto, UserInvite, UserLoginDto, UserReqOtp } from "./dto/user-auth.dto";
 import { IAuthRequest } from "src/@types/authRequest";
 import { UserAuthGuard } from "./auth.guard";
 import { Request as expRequest } from "express";
@@ -29,6 +29,11 @@ export default class AuthController {
   async userValidateMe(@Request() req: IAuthRequest): Promise<any> {
     console.log(req.user.id);
     return this.authService.validateMe({ id: req.user.id });
+  }
+
+  @Post("request-otp")
+  async userRequestOtp(@Body() reqOtpDto: UserReqOtp): Promise<any> {
+    return this.authService.requestOtp(reqOtpDto);
   }
 
   @Get("refresh-token")
