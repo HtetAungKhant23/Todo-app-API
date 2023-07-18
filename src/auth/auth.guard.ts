@@ -12,7 +12,6 @@ export class UserAuthGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.log("hello from guard!");
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
@@ -29,9 +28,8 @@ export class UserAuthGuard implements CanActivate {
       const decode = await this.jwt.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
-      console.log(decode.id);
-      request['user'] = decode;
-      console.log(request['user'], "hay");
+      request["user"] = decode;
+      return true;
     } catch (err) {
       throw new HttpException(
         {
@@ -41,7 +39,5 @@ export class UserAuthGuard implements CanActivate {
         401,
       );
     }
-
-    return true;
   }
 }
