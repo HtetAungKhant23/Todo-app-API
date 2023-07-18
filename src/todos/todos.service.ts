@@ -8,14 +8,25 @@ import { UpdateTodoDto } from "./dto/update-todo.dto";
 export class TodosService {
   constructor(private prisma: PrismaService) {}
 
-  async notFoundTodo() {
-    throw new HttpException(
+  async notFoundTodoException() {
+    return new HttpException(
       {
         message: "todo not found",
         devMessage: "todo-not-found",
         statusCode: 404,
       },
       404,
+    );
+  }
+
+  async completeTodoException() {
+    return new HttpException(
+      {
+        message: "todo is already complete",
+        devMessage: "todo-is-already-completed",
+        statusCode: 400,
+      },
+      400,
     );
   }
 
@@ -26,36 +37,35 @@ export class TodosService {
       },
     });
     if (!todo) {
-      const err = new HttpException(
-        {
-          message: "todo not found",
-          devMessage: "todo-not-found",
-          statusCode: 404,
-        },
-        404,
-      );
+      const err = await this.notFoundTodoException();
       return { undefined, err };
     }
     if (todo?.complete_status === "DONE") {
-      const err = new HttpException(
-        {
-          message: "todo is already complete",
-          devMessage: "todo-is-already-completed",
-          statusCode: 400,
-        },
-        400,
-      );
+      const err = await this.completeTodoException();
       return { undefined, err };
     } else {
       return { todo, undefined };
     }
   }
 
+  async completedOrUncompletedTodos(id: string, status: "DONE" | "UNDONE") {
+    const todos = await this.prisma.todo.findMany({
+      where: {
+        user_id: id,
+        complete_status: status,
+      },
+    });
+
+    if (todos.length < 1) {
+      const err = this.notFoundTodoException();
+      return { undefined, err };
+    }
+
+    return { todos, undefined };
+  }
+
   async create(todoData: CreateTodoDto, id: string) {
     try {
-      console.log("hi hay hr from service");
-      console.log(id);
-
       const todo = await this.prisma.todo.create({
         data: {
           title: todoData.title,
@@ -63,8 +73,6 @@ export class TodosService {
           user_id: id,
         },
       });
-
-      console.log("hi from service");
 
       return responser({
         statusCode: 201,
@@ -91,13 +99,7 @@ export class TodosService {
       });
 
       if (todos.length < 1) {
-        throw new HttpException(
-          {
-            message: "there is no todo",
-            devMessage: "no-todo-found",
-          },
-          200,
-        );
+        throw this.notFoundTodoException();
       }
 
       return responser({
@@ -108,13 +110,23 @@ export class TodosService {
         }),
       });
     } catch (err) {
-      throw new HttpException(
-        {
-          message: "todo not found",
-          devMessage: err,
-        },
-        404,
-      );
+      throw err;
+    }
+  }
+
+  async findCompleted(id: string) {
+    try {
+      const { todos, err } = await this.completedOrUncompletedTodos(id, "DONE");
+      if (err && !todos) {
+        throw err;
+      }
+      return responser({
+        statusCode: 200,
+        message: "completed todo is successfully fetched",
+        body: todos,
+      });
+    } catch (err) {
+      throw err;
     }
   }
 
@@ -125,7 +137,7 @@ export class TodosService {
       });
 
       if (!todo) {
-        return this.notFoundTodo();
+        return this.notFoundTodoException();
       }
 
       return responser({
@@ -134,13 +146,7 @@ export class TodosService {
         body: todo,
       });
     } catch (err) {
-      throw new HttpException(
-        {
-          message: "todo not found",
-          devMessage: err,
-        },
-        404,
-      );
+      throw err;
     }
   }
 
