@@ -4,8 +4,10 @@ import { UserConfirmDto, UserInvite, UserLoginDto, UserReqOtp } from "./dto/user
 import { IAuthRequest } from "src/@types/authRequest";
 import { UserAuthGuard } from "./auth.guard";
 import { Request as expRequest } from "express";
+import { ApiTags } from "@nestjs/swagger";
 
 @Controller("auth/user")
+@ApiTags("Auth")
 export default class AuthController {
   constructor(private readonly authService: AuthService) {}
 

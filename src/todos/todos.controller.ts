@@ -1,11 +1,13 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Request, UseGuards } from "@nestjs/common";
 import { TodosService } from "./todos.service";
 import { UserAuthGuard } from "src/auth/auth.guard";
 import { CreateTodoDto } from "./dto/create-todo.dto";
 import { IAuthRequest } from "src/@types/authRequest";
 import { UpdateTodoDto } from "./dto/update-todo.dto";
+import { ApiTags } from "@nestjs/swagger";
 
 @Controller("todos")
+@ApiTags("Todo")
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
@@ -33,13 +35,13 @@ export class TodosController {
     return this.todosService.complete(id);
   }
 
-  @Post("update/:id")
+  @Patch("update/:id")
   @UseGuards(UserAuthGuard)
   async updateTodo(@Param("id") id: string, @Body() updateData: UpdateTodoDto): Promise<any> {
     return this.todosService.update(id, updateData);
   }
 
-  @Post("delete/:id")
+  @Delete("delete/:id")
   @UseGuards(UserAuthGuard)
   async deleteTodo(@Param("id") id: string): Promise<any> {
     return this.todosService.delete(id);

@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder().setTitle("Todo App").setDescription("Todo API descriptoin").setVersion("1.0").build();
+  const config = new DocumentBuilder().setTitle("Todo App").setDescription("Todo app Api Documentation").setVersion("1.0").build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
