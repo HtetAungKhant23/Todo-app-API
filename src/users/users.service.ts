@@ -18,11 +18,18 @@ export class UsersService {
           200,
         );
       }
-      
+
+      let result = [];
+
+      users.map(user => {
+        const { refresh_token, password, ...one } = user;
+        return result.push(one);
+      });
+
       return responser({
         statusCode: 200,
         message: "user list fatched",
-        body: users,
+        body: result,
       });
     } catch (err) {
       throw new HttpException(
