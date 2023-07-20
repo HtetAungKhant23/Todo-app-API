@@ -7,6 +7,7 @@ import { Request as expRequest } from "express";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { fileStorage } from "src/helper/file-storage";
+import { FileSizeValidationPipe } from "src/lib/fileInterceptor";
 
 @Controller("auth/user")
 @ApiTags("Auth")
@@ -20,10 +21,11 @@ export default class AuthController {
   }
 
   @ApiOperation({ summary: "User update profile" })
-  @Post('update-profile')
-  @UseInterceptors(FilesInterceptor('image',6, fileStorage))
-  async updateProfile(@UploadedFile() files: Array<Express.Multer.File>): Promise<any> {
-    return this.authService.profile();
+  @Post("update-profile")
+  @UseGuards(UserAuthGuard)
+  @UseInterceptors(FilesInterceptor("image", 6, fileStorage))
+  async updateProfile(@UploadedFile(new FileSizeValidationPipe()) files: Array<Express.Multer.File>, @Request() req: IAuthRequest): Promise<any> {
+    return this.authService.profile(req.user.id, files);
   }
 
   @ApiOperation({ summary: "User Confirm" })

@@ -289,5 +289,15 @@ export class AuthService {
     }
   }
 
-  async profile() {}
+  async profile(id: string, files: Array<Express.Multer.File>) {
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          id
+        }
+      })
+    } catch (err) {
+      throw err;
+    }
+  }
 }
