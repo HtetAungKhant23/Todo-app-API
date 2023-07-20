@@ -289,4 +289,5 @@ export class AuthService {
     }
   }
 
+  async profile() {}
 }

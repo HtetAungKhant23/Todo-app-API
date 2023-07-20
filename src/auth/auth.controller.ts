@@ -19,6 +19,12 @@ export default class AuthController {
     return this.authService.invite(registerData);
   }
 
+  @ApiOperation({ summary: "User update profile" })
+  @Post('update-profile')
+  @UseInterceptors(FilesInterceptor('image',6, fileStorage))
+  async updateProfile(@UploadedFile() files: Array<Express.Multer.File>): Promise<any> {
+    return this.authService.profile();
+  }
 
   @ApiOperation({ summary: "User Confirm" })
   @Post("confirm")
