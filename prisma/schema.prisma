@@ -19,7 +19,7 @@ model User {
   refresh_token String?
   created_at    DateTime  @default(now())
   todo          Todo[]
-  Profile       Profile?
+  profile       Profile?
 }
 
 model Profile {
@@ -28,18 +28,17 @@ model Profile {
   role      roleStatus @default(USER)
   user_id   String     @unique
   user      User       @relation(fields: [user_id], references: [id])
-  image_id  String
-  image     File       @relation(fields: [image_id], references: [id])
+  image     File[]
 }
 
 model File {
   id         String   @id @default(uuid()) @db.VarChar(255)
   name       String
   path       String
+  profile_id String
+  profile    Profile  @relation(fields: [profile_id], references: [id])
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
-
-  profile Profile[]
 }
 
 model Todo {

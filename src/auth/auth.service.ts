@@ -293,9 +293,23 @@ export class AuthService {
     try {
       const user = await this.prisma.user.findFirst({
         where: {
-          id
+          id,
+        },
+      });
+      if (!user) {
+        throw this.notFoundUserHandler();
+      }
+
+      await this.prisma.profile.update({
+        where: { user_id: id },
+        data: {
+          image: {
+            create: {
+              name: 
+            }
+          }
         }
-      })
+      });
     } catch (err) {
       throw err;
     }
