@@ -68,7 +68,6 @@ export class AuthService {
       const code: number = Math.floor(100000 + Math.random() * 900000);
       const newUser = await this.prisma.user.create({
         data: {
-          name: data.name,
           phone: data.phone,
           otp: code.toString(),
           otpUsed: "UNUSED",
@@ -81,7 +80,6 @@ export class AuthService {
         body: {
           user: {
             id: newUser.id,
-            name: newUser.name,
           },
           otp: code,
         },
@@ -186,7 +184,6 @@ export class AuthService {
       message: "User login success.",
       body: {
         ...tokens,
-        name: user.name,
       },
     });
   }
@@ -291,4 +288,5 @@ export class AuthService {
       throw err;
     }
   }
+
 }
