@@ -20,6 +20,26 @@ model User {
   refresh_token String?
   created_at    DateTime  @default(now())
   todo          Todo[]
+  Profile       Profile?
+}
+
+model Profile {
+  id        String @id @default(uuid()) @db.VarChar(255)
+  user_name String
+  user_id   String @unique
+  user      User   @relation(fields: [user_id], references: [id])
+  image_id  String
+  image     File   @relation(fields: [image_id], references: [id])
+}
+
+model File {
+  id         String   @id @default(uuid()) @db.VarChar(255)
+  name       String
+  path       String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  profile Profile[]
 }
 
 model Todo {
