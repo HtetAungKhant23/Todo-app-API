@@ -25,6 +25,7 @@ export default class AuthController {
   @UseGuards(UserAuthGuard)
   @UseInterceptors(FilesInterceptor("image", 6, fileStorage))
   async updateProfile(@UploadedFile(new FileSizeValidationPipe()) files: Array<Express.Multer.File>, @Request() req: IAuthRequest): Promise<any> {
+    console.log("hay yo", files, req.user.id);
     return this.authService.profile(req.user.id, files);
   }
 

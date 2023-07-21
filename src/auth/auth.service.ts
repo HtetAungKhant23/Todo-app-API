@@ -301,19 +301,35 @@ export class AuthService {
     try {
       console.log("hihi");
       const name = files[0].filename;
+      const user = await this.prisma.user.findFirst({
+        where: { id },
+      });
+      const profile = await this.prisma.profile.findFirst({
+        where: {
+          user_id: id,
+        },
+      });
+      if (!profile) {
+        throw this.notFoundUserHandler();
+      }
 
-      // files.map(file => {
-      //   path.push(file.path);
-      // });
-
-      async files.map(file => {
+      files.map(async file => {
         let path = file.path;
         await this.prisma.file.create({
           data: {
             name,
             path,
+            profile_id: profile.id,
           },
         });
+      });
+
+      console.log("ok lar");
+
+      return responser({
+        statusCode: 200,
+        message: "profile updated successfully",
+        body: user,
       });
     } catch (err) {
       throw err;
