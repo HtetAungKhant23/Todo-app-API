@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Request, UseGuards, UseInterceptors, UploadedFile } from "@nestjs/common";
+import { Controller, Post, Body, Get, Request, UseGuards, UseInterceptors, UploadedFiles } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { UserConfirmDto, UserInvite, UserLoginDto, UserReqOtp } from "./dto/user-auth.dto";
 import { IAuthRequest } from "src/@types/authRequest";
@@ -24,7 +24,7 @@ export default class AuthController {
   @Post("update-profile")
   @UseGuards(UserAuthGuard)
   @UseInterceptors(FilesInterceptor("image", 6, fileStorage))
-  async updateProfile(@UploadedFile(new FileSizeValidationPipe()) files: Array<Express.Multer.File>, @Request() req: IAuthRequest): Promise<any> {
+  async updateProfile(@UploadedFiles(new FileSizeValidationPipe()) files: Array<Express.Multer.File>, @Request() req: IAuthRequest) {
     console.log("hay yo", files, req.user.id);
     return this.authService.profile(req.user.id, files);
   }

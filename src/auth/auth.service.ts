@@ -299,11 +299,6 @@ export class AuthService {
 
   async profile(id: string, files: Array<Express.Multer.File>) {
     try {
-      console.log("hihi");
-      const name = files[0].filename;
-      const user = await this.prisma.user.findFirst({
-        where: { id },
-      });
       const profile = await this.prisma.profile.findFirst({
         where: {
           user_id: id,
@@ -314,6 +309,7 @@ export class AuthService {
       }
 
       files.map(async file => {
+        let name = file.filename;
         let path = file.path;
         await this.prisma.file.create({
           data: {
@@ -324,12 +320,27 @@ export class AuthService {
         });
       });
 
+      const user = await this.prisma.user.findFirst({
+        where: { id },
+        include: {
+          profile: {
+            include: {
+              image: true,
+            },
+          },
+        },
+      });
+
       console.log("ok lar");
+
+      const { password, refresh_token, ...result } = user;
+
+      console.log("ok tal");
 
       return responser({
         statusCode: 200,
         message: "profile updated successfully",
-        body: user,
+        body: result,
       });
     } catch (err) {
       throw err;
