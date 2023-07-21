@@ -5,6 +5,7 @@ import { responser } from "src/lib/Responser";
 import { hash, verify } from "argon2";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
+import * as path from "path";
 
 @Injectable()
 export class AuthService {
@@ -310,11 +311,12 @@ export class AuthService {
 
       files.map(async file => {
         let name = file.filename;
-        let path = file.path;
+        let filePath = path.join(__dirname + ".././uploads/" + name);
+        console.log(filePath);
         await this.prisma.file.create({
           data: {
             name,
-            path,
+            path: filePath,
             profile_id: profile.id,
           },
         });
