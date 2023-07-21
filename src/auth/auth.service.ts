@@ -291,27 +291,10 @@ export class AuthService {
 
   async profile(id: string, files: Array<Express.Multer.File>) {
     try {
-      const user = await this.prisma.user.findFirst({
-        where: {
-          id,
-        },
-      });
-      if (!user) {
-        throw this.notFoundUserHandler();
-      }
-
-      await this.prisma.profile.update({
-        where: { user_id: id },
+      const image = await this.prisma.file.createMany({
         data: {
-          image: {
-            create: {
-              name: 
-            }
-          }
+          name: files.map(file => file.filename),
+          path: files.map(file => file.path)
         }
-      });
-    } catch (err) {
-      throw err;
-    }
-  }
+      })
 }

@@ -1,0 +1,66 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id String [pk]
+  phone String [unique, not null]
+  password String
+  otp String
+  otpUsed otpStatus [not null, default: 'UNUSED']
+  refresh_token String
+  created_at DateTime [default: `now()`, not null]
+  todo Todo [not null]
+  profile Profile
+}
+
+Table Profile {
+  id String [pk]
+  user_name String [not null]
+  role roleStatus [not null, default: 'USER']
+  user_id String [unique, not null]
+  user User [not null]
+  image File [not null]
+}
+
+Table File {
+  id String [pk]
+  name String [not null]
+  path String [not null]
+  profile_id String [not null]
+  profile Profile [not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [default: `now()`, not null]
+}
+
+Table Todo {
+  id String [pk]
+  title String [not null]
+  description String [not null]
+  complete_status completeStatus [not null, default: 'UNDONE']
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  user_id String
+  user User
+}
+
+Enum otpStatus {
+  USED
+  UNUSED
+}
+
+Enum completeStatus {
+  DONE
+  UNDONE
+}
+
+Enum roleStatus {
+  USER
+  ADMIN
+}
+
+Ref: Profile.user_id - User.id
+
+Ref: File.profile_id > Profile.id
+
+Ref: Todo.user_id > User.id [delete: Cascade]
