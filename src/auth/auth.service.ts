@@ -71,6 +71,12 @@ export class AuthService {
           phone: data.phone,
           otp: code.toString(),
           otpUsed: "UNUSED",
+          profile: {
+            create: {
+              user_name: data.username,
+              role: data.role === "USER" ? data.role : "ADMIN",
+            },
+          },
         },
       });
 
@@ -138,10 +144,12 @@ export class AuthService {
         },
       });
 
+      const { password, ...result } = updatedUser;
+
       return responser({
         statusCode: 200,
         message: "User invited successfully.",
-        body: updatedUser,
+        body: result,
       });
     } else {
       throw new HttpException(
@@ -291,10 +299,9 @@ export class AuthService {
 
   async profile(id: string, files: Array<Express.Multer.File>) {
     try {
-      const image = await this.prisma.file.createMany({
-        data: {
-          name: files.map(file => file.filename),
-          path: files.map(file => file.path)
-        }
-      })
+      console.log("hihi");
+    } catch (err) {
+      throw err;
+    }
+  }
 }

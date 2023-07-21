@@ -4,6 +4,14 @@ export class UserInvite {
   @IsString()
   @IsNotEmpty()
   phone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  role: string;
 }
 
 export class UserLoginDto {
@@ -34,4 +42,8 @@ export class UserReqOtp {
   @IsString()
   @IsNotEmpty()
   phone: string;
+}
+
+export class UserProfileUpdateDTO {
+  public image?: any;
 }
