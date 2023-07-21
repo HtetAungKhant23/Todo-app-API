@@ -300,6 +300,21 @@ export class AuthService {
   async profile(id: string, files: Array<Express.Multer.File>) {
     try {
       console.log("hihi");
+      const name = files[0].filename;
+
+      // files.map(file => {
+      //   path.push(file.path);
+      // });
+
+      async files.map(file => {
+        let path = file.path;
+        await this.prisma.file.create({
+          data: {
+            name,
+            path,
+          },
+        });
+      });
     } catch (err) {
       throw err;
     }
