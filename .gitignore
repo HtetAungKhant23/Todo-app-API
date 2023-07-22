@@ -1,5 +1,4 @@
-# compiled output
-.env
+/.env
 
 dist/
 node_modules/
