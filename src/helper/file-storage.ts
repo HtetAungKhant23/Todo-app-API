@@ -3,7 +3,7 @@ import { extname } from "path";
 
 export const fileStorage = {
   storage: diskStorage({
-    destination: "../uploads",
+    destination: "./uploads",
     filename: (req, file, cb) => {
       const randomName = Array(32)
         .fill(null)

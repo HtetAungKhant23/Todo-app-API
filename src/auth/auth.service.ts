@@ -311,7 +311,7 @@ export class AuthService {
 
       files.map(async file => {
         let name = file.filename;
-        let filePath = path.join(__dirname + ".././uploads/" + name);
+        let filePath = path.join(__dirname, "../.././" + file.path);
         console.log(filePath);
         await this.prisma.file.create({
           data: {
