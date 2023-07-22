@@ -1,8 +1,10 @@
 # compiled output
-/dist
-/node_modules
 .env
-/uploads
+
+dist/
+node_modules/
+
+uploads/
 # Logs
 logs
 *.log
