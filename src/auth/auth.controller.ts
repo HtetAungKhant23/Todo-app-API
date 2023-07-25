@@ -1,10 +1,10 @@
 import { Controller, Post, Body, Get, Request, UseGuards, UseInterceptors, UploadedFiles } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { UserConfirmDto, UserInvite, UserLoginDto, UserReqOtp } from "./dto/user-auth.dto";
+import { UserConfirmDto, UserInvite, UserLoginDto, UserProfileUpdateDTO, UserReqOtp, refreshTokenDto } from "./dto/user-auth.dto";
 import { IAuthRequest } from "src/@types/authRequest";
 import { UserAuthGuard } from "./auth.guard";
 import { Request as expRequest } from "express";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { fileStorage } from "src/helper/file-storage";
 import { FileSizeValidationPipe } from "src/lib/fileInterceptor";
@@ -22,7 +22,13 @@ export default class AuthController {
 
   @ApiOperation({ summary: "User update profile" })
   @Post("update-profile")
+  @ApiBody({
+    description: "Update Profile",
+    type: UserProfileUpdateDTO,
+  })
+  @ApiConsumes("multipart/form-data")
   @UseGuards(UserAuthGuard)
+  @ApiBearerAuth()
   @UseInterceptors(FilesInterceptor("image", 6, fileStorage))
   async updateProfile(@UploadedFiles(new FileSizeValidationPipe()) files: Array<Express.Multer.File>, @Request() req: IAuthRequest) {
     console.log("hay yo", files, req.user.id);
@@ -58,8 +64,13 @@ export default class AuthController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: "User Request Refresh Token" })
-  @Get("refresh-token")
-  async userRefreshToken(@Request() req: expRequest): Promise<any> {
-    return this.authService.requestRefreshToken(req);
+  @Post("refresh-token")
+  @ApiBody({
+    description: "Refresh Token",
+    type: refreshTokenDto,
+  })
+  @UseGuards(UserAuthGuard)
+  async userRefreshToken(@Body() refreshToken: string): Promise<any> {
+    return this.authService.requestRefreshToken(refreshToken);
   }
 }

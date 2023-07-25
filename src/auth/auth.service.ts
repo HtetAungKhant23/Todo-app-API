@@ -214,25 +214,14 @@ export class AuthService {
     });
   }
 
-  async requestRefreshToken(req: Request) {
-    const token = await this.extractTokenFromHeader(req);
-    if (!token) {
-      throw new HttpException(
-        {
-          message: "Refresh token is not valid",
-          devMessage: "no-token-found",
-        },
-        401,
-      );
-    }
-
+  async requestRefreshToken(refreshToken: string) {
     try {
-      const decode = await this.jwt.verifyAsync(token, { secret: process.env.JWT_REFRESH_SECRET });
+      const decode = await this.jwt.verifyAsync(refreshToken, { secret: process.env.JWT_REFRESH_SECRET });
       const existingUser = await this.prisma.user.findFirst({ where: { id: decode.id } });
       if (!existingUser) {
         return this.notFoundUserHandler();
       }
-      const isRefreshTokenMatch = await verify(existingUser.refresh_token, token);
+      const isRefreshTokenMatch = await verify(existingUser.refresh_token, refreshToken);
       if (!isRefreshTokenMatch) {
         throw new HttpException(
           {
@@ -300,7 +289,7 @@ export class AuthService {
 
   async profile(id: string, files: Array<Express.Multer.File>) {
     try {
-      const profile = await this.prisma.profile.findFirst({
+      const profile = await this.prisma.profile.findUnique({
         where: {
           user_id: id,
         },
@@ -322,27 +311,27 @@ export class AuthService {
         });
       });
 
-      const user = await this.prisma.user.findFirst({
+      const user = await this.prisma.user.findUnique({
         where: { id },
-        include: {
+        select: {
+          phone: true,
           profile: {
-            include: {
-              image: true,
+            select: {
+              user_name: true,
+              image: {
+                select: {
+                  path: true,
+                },
+              },
             },
           },
         },
       });
 
-      console.log("ok lar");
-
-      const { password, refresh_token, ...result } = user;
-
-      console.log("ok tal");
-
       return responser({
         statusCode: 200,
         message: "profile updated successfully",
-        body: result,
+        body: user,
       });
     } catch (err) {
       throw err;
