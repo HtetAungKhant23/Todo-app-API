@@ -318,6 +318,7 @@ export class AuthService {
           profile: {
             select: {
               user_name: true,
+              role: true,
               image: {
                 select: {
                   path: true,

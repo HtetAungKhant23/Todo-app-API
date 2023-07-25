@@ -62,7 +62,7 @@ export class UserProfileUpdateDTO {
       format: "binary",
     },
   })
-  public image?: Array<Express.Multer.File>;
+  public image?: Express.Multer.File;
 }
 
 export class refreshTokenDto {
