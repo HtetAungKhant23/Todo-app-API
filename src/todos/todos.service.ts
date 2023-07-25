@@ -8,8 +8,8 @@ import { UpdateTodoDto } from "./dto/update-todo.dto";
 export class TodosService {
   constructor(private prisma: PrismaService) {}
 
-  async notFoundTodoException() {
-    return new HttpException(
+  notFoundTodoException() {
+    const err = new HttpException(
       {
         message: "todo not found",
         devMessage: "todo-not-found",
@@ -17,6 +17,7 @@ export class TodosService {
       },
       404,
     );
+    return err;
   }
 
   async completeTodoException() {
@@ -58,6 +59,7 @@ export class TodosService {
 
     if (todos.length < 1) {
       const err = this.notFoundTodoException();
+      console.log(err, " this is not found err");
       return { undefined, err };
     }
 
@@ -117,6 +119,7 @@ export class TodosService {
   async findCompleted(id: string) {
     try {
       const { todos, err } = await this.completedOrUncompletedTodos(id, "DONE");
+
       if (err && !todos) {
         throw err;
       }

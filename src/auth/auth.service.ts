@@ -38,11 +38,6 @@ export class AuthService {
     };
   }
 
-  private async extractTokenFromHeader(req: Request) {
-    const [type, token] = req.headers.authorization?.split(" ") ?? [];
-    return type === "Bearer" ? token : undefined;
-  }
-
   private async updateRefreshToken({ id, token }: { id: string; token: string }) {
     const hashedRefreshToekn = await hash(token);
     return this.prisma.user.update({
