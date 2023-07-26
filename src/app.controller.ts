@@ -10,6 +10,8 @@ export class AppController {
   async seeUploadedFile(@Param("fileName") name: string, @Res() res: Response) {
     console.log(name);
     const url = await this.appService.getProfilePhoto(name);
-    res.sendFile(url);
+    console.log(url);
+    res.redirect(url);
+    // return url;
   }
 }
