@@ -6,6 +6,7 @@ import { hash, verify } from "argon2";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import * as path from "path";
+import { IAuthRequest } from "src/@types/authRequest";
 
 @Injectable()
 export class AuthService {
@@ -282,11 +283,11 @@ export class AuthService {
     }
   }
 
-  async profile(id: string, files: Array<Express.Multer.File>) {
+  async profile(req: IAuthRequest, files: Array<Express.Multer.File>) {
     try {
       const profile = await this.prisma.profile.findUnique({
         where: {
-          user_id: id,
+          user_id: req.user.id,
         },
       });
       if (!profile) {
@@ -294,6 +295,7 @@ export class AuthService {
       }
 
       files.map(async file => {
+        console.log(`${req.protocol}://${req.hostname}:3000/api/file/${file.path}`);
         let name = file.filename;
         let filePath = path.join(__dirname, "../.././" + file.path);
         console.log(filePath);
@@ -307,7 +309,7 @@ export class AuthService {
       });
 
       const user = await this.prisma.user.findUnique({
-        where: { id },
+        where: { id: req.user.id },
         select: {
           phone: true,
           profile: {

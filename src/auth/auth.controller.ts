@@ -32,7 +32,7 @@ export default class AuthController {
   @UseInterceptors(FilesInterceptor("image", 6, fileStorage))
   async updateProfile(@UploadedFiles(new FileSizeValidationPipe()) files: Array<Express.Multer.File>, @Request() req: IAuthRequest) {
     console.log("hay yo", files, req.user.id);
-    return this.authService.profile(req.user.id, files);
+    return this.authService.profile(req, files);
   }
 
   @ApiOperation({ summary: "User Confirm" })

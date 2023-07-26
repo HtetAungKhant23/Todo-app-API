@@ -4,7 +4,7 @@ import { UserAuthGuard } from "src/auth/auth.guard";
 import { CreateTodoDto } from "./dto/create-todo.dto";
 import { IAuthRequest } from "src/@types/authRequest";
 import { UpdateTodoDto } from "./dto/update-todo.dto";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 @Controller("todos")
 @ApiTags("Todo")
@@ -13,6 +13,10 @@ export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @ApiOperation({ summary: "Create Todo" })
+  @ApiBody({
+    description: "Todo Create",
+    type: CreateTodoDto,
+  })
   @Post("create")
   @UseGuards(UserAuthGuard)
   async createTodo(@Body() createTodoData: CreateTodoDto, @Request() req: IAuthRequest): Promise<any> {
@@ -55,6 +59,10 @@ export class TodosController {
   }
 
   @ApiOperation({ summary: "Update Todo by ID and it's still uncomplete" })
+  @ApiBody({
+    description: "Todo Update",
+    type: CreateTodoDto,
+  })
   @Patch("update/:id")
   @UseGuards(UserAuthGuard)
   async updateTodo(@Param("id") id: string, @Body() updateData: UpdateTodoDto): Promise<any> {

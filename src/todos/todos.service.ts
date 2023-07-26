@@ -55,11 +55,14 @@ export class TodosService {
         user_id: id,
         complete_status: status,
       },
+      select: {
+        id: true,
+        title: true,
+      },
     });
 
     if (todos.length < 1) {
       const err = this.notFoundTodoException();
-      console.log(err, " this is not found err");
       return { undefined, err };
     }
 
