@@ -1,14 +1,15 @@
 import { Controller, Get, Param, Res } from "@nestjs/common";
 import { Response } from "express";
-import { PrismaService } from "./prisma.service";
+import { AppService } from "./app.service";
 
 @Controller()
 export class AppController {
-  constructor(private db: PrismaService) {}
+  constructor(private appService: AppService) {}
 
-  @Get("file/uploads/:fileName")
-  seeUploadedFile(@Param("fileName") name: string, @Res() res: Response) {
+  @Get("profile/image/:fileName")
+  async seeUploadedFile(@Param("fileName") name: string, @Res() res: Response) {
     console.log(name);
-    return res.sendFile(name, { root: `./uploads/` });
+    const url = await this.appService.getProfilePhoto(name);
+    res.sendFile(url);
   }
 }

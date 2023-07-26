@@ -7,6 +7,7 @@ import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import * as path from "path";
 import { IAuthRequest } from "src/@types/authRequest";
+import { v2 as cloudinary } from "cloudinary";
 
 @Injectable()
 export class AuthService {
@@ -295,14 +296,15 @@ export class AuthService {
       }
 
       files.map(async file => {
-        console.log(`${req.protocol}://${req.hostname}:3000/api/file/${file.path}`);
+        const image = await cloudinary.uploader.upload(file.path);
+        console.log(image);
         let name = file.filename;
-        let filePath = path.join(__dirname, "../.././" + file.path);
-        console.log(filePath);
+        // let filePath = path.join(__dirname, "../.././" + file.path);
+        // console.log(filePath);
         await this.prisma.file.create({
           data: {
             name,
-            path: filePath,
+            path: image.url,
             profile_id: profile.id,
           },
         });
